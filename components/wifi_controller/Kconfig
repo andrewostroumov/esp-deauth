@@ -1,0 +1,19 @@
+menu "Wi-Fi Controller"
+    config WIFI_SCAN_MAX_AP
+        int "Maximun AP scanned"
+        default 20
+        help
+        Maximum number of scanned nearby AP
+
+    config WIFI_AP_SSID
+        string "WIFI AP SSID"
+        default "Xiaomi"
+        help
+        SSID of connecting AP
+
+    config WIFI_AP_PASSWORD
+        string "WIFI AP Password"
+        default "password"
+        help
+        Password for connecting AP
+endmenu

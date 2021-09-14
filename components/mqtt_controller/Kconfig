@@ -1,0 +1,13 @@
+menu "MQTT Controller"
+    config MQTT_URI
+        string "MQTT URI"
+        default "mqtt://example.com"
+
+    config MQTT_USERNAME
+        string "MQTT Username"
+        default "espressif"
+
+    config MQTT_PASSWORD
+        string "MQTT Password"
+        default "password"
+endmenu
