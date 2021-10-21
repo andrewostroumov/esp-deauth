@@ -24,6 +24,6 @@ void rogueap_request(const wifi_ap_record_t *ap_record) {
 }
 
 void rogueap_reset() {
-    wifi_access_point_stop();
     wifi_restore_ap_mac();
+    wifi_access_point_stop();
 }

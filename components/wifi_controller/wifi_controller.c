@@ -35,7 +35,7 @@ void wifi_init() {
 }
 
 void wifi_connect(wifi_config_t *wifi_config) {
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+//    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, wifi_config));
     ESP_ERROR_CHECK(esp_wifi_connect());
 }
@@ -46,7 +46,7 @@ void wifi_disconnect() {
 
 void wifi_access_point(wifi_config_t *wifi_config) {
     ESP_LOGD(TAG, "Starting AP...");
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+//    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, wifi_config));
     ESP_LOGI(TAG, "AP started with SSID %s channel %d", wifi_config->ap.ssid, wifi_config->ap.channel);
 }
@@ -54,11 +54,12 @@ void wifi_access_point(wifi_config_t *wifi_config) {
 // TODO: investigate it
 void wifi_access_point_stop() {
     ESP_LOGD(TAG, "Stopping AP...");
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+//    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 }
 
 void wifi_set_ap_mac(const uint8_t *mac_ap) {
     ESP_LOGD(TAG, "Changing AP MAC address...");
+//    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_mac(WIFI_IF_AP, mac_ap));
 }
 

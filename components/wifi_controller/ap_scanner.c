@@ -35,6 +35,7 @@ const wifi_ap_record_t *wifi_get_ap_record(const uint8_t *bssid) {
 
     for (int i = 0; i < ap_records.count; i++) {
         if (memcmp(ap_records.records[i].bssid, bssid, sizeof(ap_records.records[i].bssid)) == 0) {
+            ESP_LOGI(TAG, "The neighborhood SSID %s channel %d (rssi %d)", ap_records.records[i].ssid, ap_records.records[i].primary, ap_records.records[i].rssi);
             return &ap_records.records[i];
         }
     }

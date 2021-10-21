@@ -23,7 +23,7 @@
 #include "esp_discovery.h"
 
 #define DEFAULT_BUF_SIZE 1024
-
+#define SCAN_APS_NUM 5
 
 static const char *TAG = "main";
 static esp_device_t esp_device;
@@ -69,7 +69,6 @@ static void attack_config_handle(const char *data) {
 }
 
 static void wifi_timer_connect() {
-    ESP_LOGI(TAG, "WIFI TIMER CONNECT");
     wifi_attack_reset();
     wifi_connect(&wifi_config);
 }
@@ -195,6 +194,7 @@ static void request_easy() {
 _Noreturn static void task_mqtt_data(void *arg) {
     esp_err_t err;
     char config_buffer[128];
+    const wifi_ap_record_t *ap_record = NULL;
 
     while (true) {
         xEventGroupWaitBits(mqtt_event_group, MQTT_DATA_BIT, true, true, portMAX_DELAY);
@@ -205,7 +205,9 @@ _Noreturn static void task_mqtt_data(void *arg) {
             continue;
         }
 
-        const wifi_ap_record_t *ap_record = wifi_attack_record();
+        for (int i = 0; i < SCAN_APS_NUM && ap_record == NULL; ++i) {
+            ap_record = wifi_attack_record();
+        }
 
         if (ap_record == NULL) {
             ESP_LOGI(TAG, "MQTT data handle ap_record NULL");
@@ -305,7 +307,7 @@ void app_main(void) {
 
     xTaskCreate(task_wifi_connect, "task_wifi_connect", 2048, NULL, 0, NULL);
     xTaskCreate(task_wifi_disconnect, "task_wifi_disconnect", 2048, NULL, 0, NULL);
-    xTaskCreate(task_mqtt_data, "task_mqtt_data", 2048, NULL, 0, NULL);
+    xTaskCreate(task_mqtt_data, "task_mqtt_data", 2560, NULL, 0, NULL);
     xTaskCreate(task_mqtt_connected, "task_mqtt_connected", 2048, NULL, 0, NULL);
 }
 
