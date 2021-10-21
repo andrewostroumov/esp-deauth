@@ -205,6 +205,8 @@ _Noreturn static void task_mqtt_data(void *arg) {
             continue;
         }
 
+        ap_record = NULL;
+
         for (int i = 0; i < SCAN_APS_NUM && ap_record == NULL; ++i) {
             ap_record = wifi_attack_record();
         }
