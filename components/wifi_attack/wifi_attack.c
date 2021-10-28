@@ -84,6 +84,7 @@ void wifi_attack_serialize(wifi_attack_config_t *config, char *data) {
     cJSON *root = cJSON_CreateObject();
     cJSON_AddStringToObject(root, "state", config->state ? STATE_ON : STATE_OFF);
     cJSON_AddNumberToObject(root, "timeout", config->timeout);
+    cJSON_AddNumberToObject(root, "rssi", config->scan_rssi);
 
     switch (config->method) {
         case WIFI_ATTACK_METHOD_BROADCAST:
@@ -138,6 +139,8 @@ void wifi_attack_deserialize(wifi_attack_config_t *config, const char *data) {
     if (!root) {
         return;
     }
+
+    config->scan_rssi = 0;
 
     cJSON *state = cJSON_GetObjectItem(root, "state");
     if (state) {

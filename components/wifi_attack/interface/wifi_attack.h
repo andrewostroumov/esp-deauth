@@ -29,6 +29,7 @@ typedef struct {
     uint8_t method;
     uint8_t timeout;
     uint8_t bssid[6];
+    int8_t scan_rssi;
 } wifi_attack_config_t;
 
 

@@ -23,13 +23,15 @@
 #include "esp_discovery.h"
 
 #define DEFAULT_BUF_SIZE 1024
-#define SCAN_APS_NUM 5
+#define SCAN_APS_NUM 30
+#define SCAN_APS_DELAY 5000
 
 static const char *TAG = "main";
 static esp_device_t esp_device;
 static EventGroupHandle_t wifi_event_group, mqtt_event_group;
 static esp_timer_handle_t wifi_timer_handle;
 static wifi_attack_config_t attack_config;
+static uint64_t wifi_timer_timeout_us = 5 * 60 * 1000000;
 
 static const int WIFI_CONNECT_BIT = BIT0;
 static const int WIFI_DISCONNECT_BIT = BIT1;
@@ -175,7 +177,12 @@ static const wifi_ap_record_t *wifi_attack_record() {
         return NULL;
     }
 
-    return wifi_attack_scan_aps(attack_config.bssid);
+    const wifi_ap_record_t *ap = wifi_attack_scan_aps(attack_config.bssid);
+    if (ap != NULL) {
+        attack_config.scan_rssi = ap->rssi;
+    }
+
+    return ap;
 }
 
 static void request_easy() {
@@ -186,18 +193,17 @@ static void request_easy() {
         return;
     }
 
-    esp_timer_start_once(wifi_timer_handle, 60 * 1000000);
+    esp_timer_start_once(wifi_timer_handle, wifi_timer_timeout_us);
 
     wifi_attack_request(&attack_config, ap_record);
 }
 
 _Noreturn static void task_mqtt_data(void *arg) {
-    esp_err_t err;
     char config_buffer[128];
     const wifi_ap_record_t *ap_record = NULL;
 
     while (true) {
-        xEventGroupWaitBits(mqtt_event_group, MQTT_DATA_BIT, true, true, portMAX_DELAY);
+        xEventGroupWaitBits(mqtt_event_group, MQTT_DATA_BIT, false, true, portMAX_DELAY);
 
         if (!attack_config.state) {
             wifi_attack_serialize(&attack_config, config_buffer);
@@ -205,15 +211,20 @@ _Noreturn static void task_mqtt_data(void *arg) {
             continue;
         }
 
-        ap_record = NULL;
-
-        for (int i = 0; i < SCAN_APS_NUM && ap_record == NULL; ++i) {
+        for (int i = 0; i < SCAN_APS_NUM; ++i) {
             ap_record = wifi_attack_record();
+            if (ap_record == NULL) {
+                vTaskDelay(pdMS_TO_TICKS(SCAN_APS_DELAY));
+                continue;
+            }
+
+            break;
         }
 
         if (ap_record == NULL) {
             ESP_LOGI(TAG, "MQTT data handle ap_record NULL");
 
+            attack_config.scan_rssi = 0;
             attack_config.state = false;
             wifi_attack_serialize(&attack_config, config_buffer);
             mqtt_publish_state(config_buffer);
@@ -226,7 +237,7 @@ _Noreturn static void task_mqtt_data(void *arg) {
         mqtt_publish_state(config_buffer);
 
         // NOTE: start timer before Wi-Fi disconnect to rely on esp_timer_is_active
-        esp_timer_start_once(wifi_timer_handle, 60 * 1000000);
+        esp_timer_start_once(wifi_timer_handle, wifi_timer_timeout_us);
 
         mqtt_disconnect();
         wifi_disconnect();
