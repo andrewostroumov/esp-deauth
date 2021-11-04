@@ -1,2 +1,9 @@
 idf_component_register(SRCS "main.c"
-                    INCLUDE_DIRS ".")
+        INCLUDE_DIRS "interface")
+
+set(PROJECT_VERSION_MAJOR 1)
+set(PROJECT_VERSION_MINOR 0)
+set(PROJECT_VERSION_PATCH 0)
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/interface/version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/interface/version.h @ONLY)

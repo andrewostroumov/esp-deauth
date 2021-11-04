@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "version.h"
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -27,7 +28,6 @@
 #define SCAN_APS_DELAY 5000
 
 static const char *TAG = "main";
-static esp_device_t esp_device;
 static EventGroupHandle_t wifi_event_group, mqtt_event_group;
 static esp_timer_handle_t wifi_timer_handle;
 static wifi_attack_config_t attack_config;
@@ -40,6 +40,10 @@ static const int MQTT_CONNECT_BIT = BIT0;
 static const int MQTT_DISCONNECT_BIT = BIT1;
 static const int MQTT_DATA_BIT = BIT2;
 static const int MQTT_CONNECT_PUSH_BIT = BIT3;
+
+static esp_device_t esp_device = {
+        .sw_version = SOFTWARE_VERSION
+};
 
 static esp_discovery_t esp_discovery = {
         .esp_device = &esp_device
