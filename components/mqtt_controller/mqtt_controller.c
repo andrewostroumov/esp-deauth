@@ -15,10 +15,10 @@ void mqtt_init(esp_discovery_t *esp_discovery, mqtt_event_callback_t event_handl
             .username = CONFIG_MQTT_USERNAME,
             .password = CONFIG_MQTT_PASSWORD,
             .event_handle = event_handle,
-            .lwt_topic = esp_discovery->status_topic,
-            .lwt_msg = STATUS_OFFLINE,
-            .lwt_qos = 1,
-            .lwt_retain = true,
+//            .lwt_topic = esp_discovery->status_topic,
+//            .lwt_msg = STATUS_OFFLINE,
+//            .lwt_qos = 1,
+//            .lwt_retain = true,
             .keepalive = 10
     };
 

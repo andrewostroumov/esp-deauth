@@ -24,14 +24,14 @@
 #include "esp_discovery.h"
 
 #define DEFAULT_BUF_SIZE 1024
-#define SCAN_APS_NUM 30
+#define SCAN_APS_NUM 3
 #define SCAN_APS_DELAY 5000
 
 static const char *TAG = "main";
 static EventGroupHandle_t wifi_event_group, mqtt_event_group;
 static esp_timer_handle_t wifi_timer_handle;
 static wifi_attack_config_t attack_config;
-static uint64_t wifi_timer_timeout_us = 5 * 60 * 1000000;
+static uint64_t wifi_timer_timeout_us = 30 * 60 * 1000000;
 
 static const int WIFI_CONNECT_BIT = BIT0;
 static const int WIFI_DISCONNECT_BIT = BIT1;
@@ -212,6 +212,7 @@ _Noreturn static void task_mqtt_data(void *arg) {
         if (!attack_config.state) {
             wifi_attack_serialize(&attack_config, config_buffer);
             mqtt_publish_state(config_buffer);
+            xEventGroupClearBits(mqtt_event_group, MQTT_DATA_BIT);
             continue;
         }
 
@@ -232,7 +233,6 @@ _Noreturn static void task_mqtt_data(void *arg) {
             attack_config.state = false;
             wifi_attack_serialize(&attack_config, config_buffer);
             mqtt_publish_state(config_buffer);
-
             xEventGroupClearBits(mqtt_event_group, MQTT_DATA_BIT);
             continue;
         }
@@ -320,7 +320,8 @@ void app_main(void) {
 
     create_timers();
     create_connectivity();
-    request_easy();
+//    request_easy();
+    wifi_connect(&wifi_config);
 
     xTaskCreate(task_wifi_connect, "task_wifi_connect", 2048, NULL, 0, NULL);
     xTaskCreate(task_wifi_disconnect, "task_wifi_disconnect", 2048, NULL, 0, NULL);
